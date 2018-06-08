@@ -1,4 +1,4 @@
-package com.hengsheng.netcoredemo;
+package com.hengsheng.netcoredemo.main;
 
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;

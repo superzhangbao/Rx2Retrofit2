@@ -1,4 +1,4 @@
-package com.hengsheng.netcoredemo;
+package com.hengsheng.netcoredemo.main;
 
 import android.app.Application;
 import android.content.Context;

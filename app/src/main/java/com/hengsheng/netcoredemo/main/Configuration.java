@@ -1,4 +1,4 @@
-package com.hengsheng.netcoredemo;
+package com.hengsheng.netcoredemo.main;
 
 /**
  * Created by zhangb on 2018/4/13/013

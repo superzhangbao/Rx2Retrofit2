@@ -1,10 +1,12 @@
-package com.hengsheng.netcoredemo;
+package com.hengsheng.netcoredemo.main;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.hengsheng.netcoredemo.R;
 import com.hengsheng.netcoredemo.bean.H191_APP_LOGIN;
 import com.hengsheng.netcoredemo.bean.H191_APP_SMSCODE_SND;
 import com.hengsheng.netcoredemo.bean.MeiZi;
@@ -19,13 +21,13 @@ import java.util.List;
 
 import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private String mJ2;
+    private Button mButton,mBtnRxjava2;
 
     @Override
     protected int getLayoutId() {
@@ -34,34 +36,35 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     @Override
     protected void init(Bundle savedInstanceState) {
-        Button button = findViewById(R.id.btn);
-
-        button.setOnClickListener(this);
+        mButton = findViewById(R.id.btn);
+        mBtnRxjava2 = findViewById(R.id.btn_rxjava2_demo);
+        mButton.setOnClickListener(this);
+        mBtnRxjava2.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn:
 //        getMeizi();
-        test();
+                test();
+                break;
+            case R.id.btn_rxjava2_demo:
+                startActivity(new Intent(this,Rxjava2Activity.class));
+                break;
+        }
     }
 
     private void test() {
-        JSONObject map = new JSONObject();
-        try {
-            map.put("devid","ARDa367824a38e3e47ac64d3895fa70215d");
-            map.put("exCode",Configuration.H191_APP_SMSCODE_SND);
-            map.put("j1","15056006309");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+
 
         final JSONObject login = new JSONObject();
         try {
-            login.put("devid","ARDa367824a38e3e47ac64d3895fa70215d");
-            login.put("exCode",Configuration.H191_APP_LOGIN);
-            login.put("j1",Configuration.H191_APP_LOGIN);
-            login.put("j2","15056006309");
-            login.put("j3",mJ2);
+            login.put("devid", "ARDa367824a38e3e47ac64d3895fa70215d");
+            login.put("exCode", Configuration.H191_APP_LOGIN);
+            login.put("j1", Configuration.H191_APP_LOGIN);
+            login.put("j2", "15056006309");
+            login.put("j3", mJ2);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -70,16 +73,22 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         //loadingview
         //                .compose(ProgressUtils.<H191_APP_SMSCODE_SND>applyProgressBar(this))
 
-                RetrofitClient.getApiService()
+
+        JSONObject map = new JSONObject();
+        try {
+            map.put("devid", "ARDa367824a38e3e47ac64d3895fa70215d");
+            map.put("exCode", Configuration.H191_APP_SMSCODE_SND);
+            map.put("j1", "15056006309");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RetrofitClient.getApiService()
                 .getVerificationCode(map)
+                .compose(ProgressUtils.<H191_APP_SMSCODE_SND>applyProgressBar(this))
                 .compose(this.<H191_APP_SMSCODE_SND>bindToLifecycle())
                 .subscribeOn(Schedulers.io())
-                .doOnNext(new Consumer<H191_APP_SMSCODE_SND>() {
-                    @Override
-                    public void accept(H191_APP_SMSCODE_SND h191_app_smscode_snd) throws Exception {
-
-                    }
-                })
+                .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(new Function<H191_APP_SMSCODE_SND, ObservableSource<H191_APP_LOGIN>>() {
                     @Override
                     public ObservableSource<H191_APP_LOGIN> apply(H191_APP_SMSCODE_SND h191_app_smscode_snd) throws Exception {
@@ -91,7 +100,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 .subscribe(new DefaultObserver<H191_APP_LOGIN>() {
                     @Override
                     public void onSuccess(H191_APP_LOGIN response) {
-                        Toast.makeText(MainActivity.this,response.message,Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, response.message, Toast.LENGTH_LONG).show();
                     }
                 });
     }
